@@ -49,8 +49,8 @@ describe("BlockArtistry", function () {
   it("Get Enumerable", async function () {
     const {instance, owner, addr1, addr2, tokenURL, rwdInstance} = await loadFixture(deployTokenFixture);
     await instance.safeMint(addr1.address, "image", tokenURL, 6, 2)
-    console.log(await instance.)
-    console.log(await instance.tokenOfOwnerByIndex(addr1.address, 0));
-    console.log(await instance.tokenOfOwnerByIndex(addr1.address, 1));
+    const tokenId1 = await instance.tokenOfOwnerByIndex(addr1.address, 0)
+    const tokenId2 = await instance.tokenOfOwnerByIndex(addr1.address, 1)
+    expect(tokenId2).to.be.not.equal(tokenId1)
   })
 });
