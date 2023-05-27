@@ -7,31 +7,35 @@ import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/draft-ERC721Votes.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "../interfaces/IRewardToken.sol";
+import "hardhat/console.sol";
 
-contract RewardToken is ERC721, Ownable, EIP712, ERC721Votes, ERC721URIStorage {
-    using Counters for Counters.Counter;
+contract RewardToken is
+    ERC721,
+    EIP712,
+    Ownable,
+    ERC721Votes,
+    ERC721URIStorage,
+    IRewardToken
+{
+        using Counters for Counters.Counter;
+        Counters.Counter private _tokenIdCounter;
 
-    constructor() ERC721("Reward Token", "RWT") EIP712("Reward Token", "1") {}
-    Counters.Counter private _tokenIdCounter;
+    constructor(address ownerAddress) ERC721("RewardToken", "RWD") EIP712("RewardToken", "1"){
+        transferOwnership(ownerAddress);
+        _tokenIdCounter.increment();
+    }
 
-    function safeMint(address to, string memory uri) external onlyOwner{
+    function safeMint(address to, string memory uri) external override {
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
+        // _approve(to, tokenId);
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
     }
 
     function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
         super._burn(tokenId);
-    }
-
-    function tokenURI(uint256 tokenId)
-        public
-        view
-        override(ERC721, ERC721URIStorage)
-        returns (string memory)
-    {
-        return super.tokenURI(tokenId);
     }
 
     function supportsInterface(bytes4 interfaceId)
@@ -41,6 +45,15 @@ contract RewardToken is ERC721, Ownable, EIP712, ERC721Votes, ERC721URIStorage {
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
+    }
+
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        override(ERC721, ERC721URIStorage)
+        returns (string memory)
+    {
+        return super.tokenURI(tokenId);
     }
 
     function _afterTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize)

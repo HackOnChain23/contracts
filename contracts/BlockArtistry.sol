@@ -6,9 +6,12 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "../interfaces/IRewardToken.sol";
+import "hardhat/console.sol";
 
 contract BlockArtistry is ERC721, ERC721URIStorage, Ownable, EIP712 {
     using Counters for Counters.Counter;
+    IRewardToken public rewardToken;
 
     struct Token {
         address creator;
@@ -32,13 +35,16 @@ contract BlockArtistry is ERC721, ERC721URIStorage, Ownable, EIP712 {
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, partUri);
+        console.log("URI SET ");
         address[] memory addressList = new address[](partsAmount);
         string[] memory uriParts = new string[](partsAmount);
         tokenList.push(Token(to, dataTypes, addressList, uriParts, partsAmount));
         _detailsToTokenId[tokenList.length - 1] = tokenId;
+        console.log("Mint works Fine");
+        // rewardToken.safeMint(to, partUri);
     }
 
-    function addPart(string memory partUri, uint16 partNumber, uint256 tokenId) public onlyOwner {
+    function addPart(address to, string memory partUri, uint16 partNumber, uint256 tokenId) public onlyOwner {
         require(_exists(tokenId), "Token id not exist!");
         partNumber--;
         uint256 _detailsId = _detailsToTokenId[tokenId];
@@ -47,6 +53,7 @@ contract BlockArtistry is ERC721, ERC721URIStorage, Ownable, EIP712 {
         tokenDetails.uriParts[partNumber] = partUri;
         tokenList[_detailsId] = tokenDetails;
         _setTokenURI(tokenId, partUri);
+        rewardToken.safeMint(to, partUri);
     }
 
     function getTokenDetails(uint256 tokenId) public view returns (Token memory token) {
