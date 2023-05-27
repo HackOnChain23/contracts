@@ -9,20 +9,16 @@ describe("BlockArtistry", function () {
 
     const Token = await ethers.getContractFactory("BlockArtistry");
     const instance = await Token.deploy();
-    // await instance.deployed();
+    await instance.deployed();
 
     const RWDToken = await ethers.getContractFactory("RewardToken");
-    console.log(instance.address)
-    console.log("Balance: ",await RWDToken.signer.getBalance())
     const rwdInstance = await RWDToken.deploy(instance.address);
-    // await rwdInstance.deployed();
+    await rwdInstance.deployed();
+
+    await instance.initRewardContract(rwdInstance.address)
+
     const tokenURL = "https://bafkreifwoe3imwhatylsy4cnthbofqvgwnf6pgzdqrbnoarjinjzqsi6l4.ipfs.nftstorage.link/";
-    console.log("Add 0", owner.address)
-
-    console.log("Add 1", addr1.address)
-
-    console.log("Add 2", addr2.address)
-    await instance.safeMint(addr1.address, "image", tokenURL, 6)
+    await instance.safeMint(addr1.address, "image", tokenURL, 6, 1)
 
     return {Token, instance, owner, addr1, addr2, tokenURL, rwdInstance}
   }
@@ -39,16 +35,13 @@ describe("BlockArtistry", function () {
   })
 
   it("Add part to NFT", async function () {
-    const {instance, owner, addr1, addr2, tokenURL} = await loadFixture(deployTokenFixture);
-    const partNumber = 2;
-    await instance.safeMint(addr1.address, "image", tokenURL, 6)
-    console.log("Owner",await instance.owner())
+    const {instance, owner, addr1, addr2, tokenURL,rwdInstance} = await loadFixture(deployTokenFixture);
+    const partNumber = 3;
     await instance.addPart(owner.address, tokenURL, partNumber, 0);
-    console.log("test")
-    expect((await instance.getTokenDetails(1)).uriParts[partNumber - 1]).to.be.equal(tokenURL)
+    expect((await instance.getTokenDetails(0)).uriParts[partNumber - 1]).to.be.equal(tokenURL)
   })
 
   it("Get Reward test", async function () {
-    const {instance, owner, addr1, addr2, tokenURL, rwdInstance} = await loadFixture(deployTokenFixture);
+    const {instance, owner, addr1, addr2, tokenURL} = await loadFixture(deployTokenFixture);
   })
 });

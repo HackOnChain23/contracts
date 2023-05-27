@@ -13,6 +13,8 @@ contract BlockArtistry is ERC721, ERC721URIStorage, Ownable, EIP712 {
     using Counters for Counters.Counter;
     IRewardToken public rewardToken;
 
+    address private rewardAddress;
+
     struct Token {
         address creator;
         string dataTypes;
@@ -29,7 +31,7 @@ contract BlockArtistry is ERC721, ERC721URIStorage, Ownable, EIP712 {
 
     constructor() ERC721("Block Artistry", "BART") EIP712("Block Artistry", "1") {}
 
-    function safeMint(address to, string memory dataTypes, string memory partUri, uint16 partsAmount) public onlyOwner {
+    function safeMint(address to, string memory dataTypes, string memory partUri, uint16 partsAmount, uint16 partToAdd) public {
         require(partsAmount > 0 && partsAmount < 65534, "Parts amount should be in range [1:65534]");
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
@@ -38,10 +40,10 @@ contract BlockArtistry is ERC721, ERC721URIStorage, Ownable, EIP712 {
         console.log("URI SET ");
         address[] memory addressList = new address[](partsAmount);
         string[] memory uriParts = new string[](partsAmount);
+        uriParts[partToAdd] = partUri;
         tokenList.push(Token(to, dataTypes, addressList, uriParts, partsAmount));
         _detailsToTokenId[tokenList.length - 1] = tokenId;
-        console.log("Mint works Fine");
-        // rewardToken.safeMint(to, partUri);
+        rewardToken.safeMint(to, partUri);
     }
 
     function addPart(address to, string memory partUri, uint16 partNumber, uint256 tokenId) public onlyOwner {
@@ -53,11 +55,18 @@ contract BlockArtistry is ERC721, ERC721URIStorage, Ownable, EIP712 {
         tokenDetails.uriParts[partNumber] = partUri;
         tokenList[_detailsId] = tokenDetails;
         _setTokenURI(tokenId, partUri);
-        rewardToken.safeMint(to, partUri);
+        IRewardToken rewardToken2 = rewardToken;
+        rewardToken2.safeMint(to, partUri);
     }
 
-    function getTokenDetails(uint256 tokenId) public view returns (Token memory token) {
-        return(tokenList[_detailsToTokenId[tokenId]]);
+    function initRewardContract(address addr) public onlyOwner {
+        rewardAddress = addr;
+        rewardToken = IRewardToken(rewardAddress);
+    }
+
+    function getTokenDetails(uint tokenId) public view returns (Token memory token) {
+        uint details = _detailsToTokenId[tokenId];
+        return(tokenList[details]);
     }
 
     function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
