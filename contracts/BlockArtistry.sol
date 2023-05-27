@@ -6,10 +6,11 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "../interfaces/IRewardToken.sol";
 import "hardhat/console.sol";
 
-contract BlockArtistry is ERC721, ERC721URIStorage, Ownable, EIP712 {
+contract BlockArtistry is ERC721, ERC721URIStorage, Ownable, EIP712, ERC721Enumerable {
     using Counters for Counters.Counter;
     IRewardToken public rewardToken;
 
@@ -37,7 +38,6 @@ contract BlockArtistry is ERC721, ERC721URIStorage, Ownable, EIP712 {
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, partUri);
-        console.log("URI SET ");
         address[] memory addressList = new address[](partsAmount);
         string[] memory uriParts = new string[](partsAmount);
         uriParts[partToAdd] = partUri;
@@ -82,10 +82,17 @@ contract BlockArtistry is ERC721, ERC721URIStorage, Ownable, EIP712 {
         return super.tokenURI(tokenId);
     }
 
+    function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize)
+        internal
+        override(ERC721, ERC721Enumerable)
+    {
+        super._beforeTokenTransfer(from, to, tokenId, batchSize);
+    }
+
     function supportsInterface(bytes4 interfaceId)
         public
         view
-        override(ERC721, ERC721URIStorage)
+        override(ERC721, ERC721URIStorage, ERC721Enumerable)
         returns (bool)
     {
         return super.supportsInterface(interfaceId);

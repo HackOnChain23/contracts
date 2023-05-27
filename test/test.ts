@@ -42,6 +42,15 @@ describe("BlockArtistry", function () {
   })
 
   it("Get Reward test", async function () {
-    const {instance, owner, addr1, addr2, tokenURL} = await loadFixture(deployTokenFixture);
+    const {instance, owner, addr1, addr2, tokenURL, rwdInstance} = await loadFixture(deployTokenFixture);
+    expect((await rwdInstance.ownerOf(1))).to.be.equal(addr1.address)
+  })
+
+  it("Get Enumerable", async function () {
+    const {instance, owner, addr1, addr2, tokenURL, rwdInstance} = await loadFixture(deployTokenFixture);
+    await instance.safeMint(addr1.address, "image", tokenURL, 6, 2)
+    console.log(await instance.)
+    console.log(await instance.tokenOfOwnerByIndex(addr1.address, 0));
+    console.log(await instance.tokenOfOwnerByIndex(addr1.address, 1));
   })
 });
