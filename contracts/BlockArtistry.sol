@@ -13,7 +13,6 @@ import "hardhat/console.sol";
 contract BlockArtistry is ERC721, ERC721URIStorage, Ownable, EIP712, ERC721Enumerable {
     using Counters for Counters.Counter;
     IRewardToken public rewardToken;
-
     address private rewardAddress;
 
     struct Token {
@@ -34,15 +33,18 @@ contract BlockArtistry is ERC721, ERC721URIStorage, Ownable, EIP712, ERC721Enume
 
     function safeMint(address to, string memory dataTypes, string memory partUri, uint16 partsAmount, uint16 partToAdd) public {
         require(partsAmount > 0 && partsAmount < 65534, "Parts amount should be in range [1:65534]");
+        initRewardContract(address(this));
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, partUri);
         address[] memory addressList = new address[](partsAmount);
+        addressList[partToAdd] = to;
         string[] memory uriParts = new string[](partsAmount);
         uriParts[partToAdd] = partUri;
         tokenList.push(Token(to, dataTypes, addressList, uriParts, partsAmount));
         _detailsToTokenId[tokenList.length - 1] = tokenId;
+        rewardToken = IRewardToken(rewardAddress);
         rewardToken.safeMint(to, partUri);
     }
 
@@ -51,7 +53,9 @@ contract BlockArtistry is ERC721, ERC721URIStorage, Ownable, EIP712, ERC721Enume
         partNumber--;
         uint256 _detailsId = _detailsToTokenId[tokenId];
         Token memory tokenDetails = tokenList[_detailsId];
+        require(_isContributor(tokenDetails.contributors));
         require(keccak256(abi.encodePacked(tokenDetails.uriParts[partNumber])) == keccak256(abi.encodePacked("")), "Token part already added, select different part.");
+        initRewardContract(address(this));
         tokenDetails.uriParts[partNumber] = partUri;
         tokenList[_detailsId] = tokenDetails;
         _setTokenURI(tokenId, partUri);
@@ -62,6 +66,15 @@ contract BlockArtistry is ERC721, ERC721URIStorage, Ownable, EIP712, ERC721Enume
     function initRewardContract(address addr) public onlyOwner {
         rewardAddress = addr;
         rewardToken = IRewardToken(rewardAddress);
+    }
+
+    function _isContributor(address[] memory contributors) internal view returns(bool) {
+        for(uint i; i < contributors.length; i++) {
+            if (contributors[i] == msg.sender) {
+                return(true);
+            }
+        }
+        return(false);
     }
 
     function getTokenDetails(uint tokenId) public view returns (Token memory token) {

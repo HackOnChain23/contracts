@@ -2,7 +2,6 @@ import { ethers } from "hardhat";
 const fs = require("fs")
 const path = require("path")
 
-
 async function main() {
   const ContractFactoryBA = await ethers.getContractFactory("BlockArtistry");
   const instanceBA = await ContractFactoryBA.deploy();
@@ -11,8 +10,6 @@ async function main() {
   const ContractFactoryRW = await ethers.getContractFactory("RewardToken");
   const instanceRW = await ContractFactoryRW.deploy(instanceBA.address);
   await instanceRW.deployed();
-
-  instanceBA.initRewardContract(instanceRW.address)
 
   const getTheAbi = () => {
     try {
@@ -32,8 +29,8 @@ async function main() {
   }
   // getTheAbi()
 
-  // console.log(`ContractBA deployed to ${instanceBA.address}`);
-  // console.log(`ContractRW deployed to ${instanceRW.address}`);
+  console.log(`ContractBA deployed to ${instanceBA.address}`);
+  console.log(`ContractRW deployed to ${instanceRW.address}`);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

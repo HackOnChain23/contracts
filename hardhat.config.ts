@@ -17,7 +17,9 @@ const config: HardhatUserConfig = {
   networks: {
     "mantle-testnet": {
       url: "https://rpc.testnet.mantle.xyz",
-      accounts: [`${process.env.PRIVATE_KEY}`]
+      accounts: [`${process.env.PRIVATE_KEY}`],
+      gas: 2100000,
+      blockGasLimit: 5000000
     },
     local: {
       url: "http://127.0.0.1:8545",
@@ -26,7 +28,7 @@ const config: HardhatUserConfig = {
         "0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a",
         "0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6"],
       gas: 2100000,
-      gasPrice: 8000000000
+      blockGasLimit: 5000000
     }
   },
     gasReporter: {
