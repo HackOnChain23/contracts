@@ -33,7 +33,7 @@ contract BlockArtistry is ERC721, ERC721URIStorage, Ownable, EIP712, ERC721Enume
 
     function safeMint(address to, string memory dataTypes, string memory partUri, uint16 partsAmount, uint16 partToAdd) public {
         require(partsAmount > 0 && partsAmount < 65534, "Parts amount should be in range [1:65534]");
-        initRewardContract(address(this));
+        // initRewardContract(address(this));
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
@@ -44,26 +44,34 @@ contract BlockArtistry is ERC721, ERC721URIStorage, Ownable, EIP712, ERC721Enume
         uriParts[partToAdd] = partUri;
         tokenList.push(Token(to, dataTypes, addressList, uriParts, partsAmount));
         _detailsToTokenId[tokenList.length - 1] = tokenId;
-        rewardToken = IRewardToken(rewardAddress);
-        rewardToken.safeMint(to, partUri);
     }
 
-    function addPart(address to, string memory partUri, uint16 partNumber, uint256 tokenId) public onlyOwner {
+    function addPart(string memory partUri, uint16 partNumber, uint256 tokenId) public {
         require(_exists(tokenId), "Token id not exist!");
+        require(partNumber > 0);
         partNumber--;
         uint256 _detailsId = _detailsToTokenId[tokenId];
         Token memory tokenDetails = tokenList[_detailsId];
-        require(_isContributor(tokenDetails.contributors));
+        require(!_isContributor(tokenDetails.contributors), "User is contributor already");
         require(keccak256(abi.encodePacked(tokenDetails.uriParts[partNumber])) == keccak256(abi.encodePacked("")), "Token part already added, select different part.");
-        initRewardContract(address(this));
         tokenDetails.uriParts[partNumber] = partUri;
         tokenList[_detailsId] = tokenDetails;
         _setTokenURI(tokenId, partUri);
-        IRewardToken rewardToken2 = rewardToken;
-        rewardToken2.safeMint(to, partUri);
     }
 
-    function initRewardContract(address addr) public onlyOwner {
+    function addTest(string memory partUri, uint16 partNumber, uint256 tokenId) public {
+        require(_exists(tokenId), "Token id not exist!");
+        require(partNumber > 0);
+        partNumber--;
+        uint256 _detailsId = _detailsToTokenId[tokenId];
+        Token memory tokenDetails = tokenList[_detailsId];
+        require(!_isContributor(tokenDetails.contributors), "User is contributor already");
+        tokenDetails.uriParts[partNumber] = partUri;
+        tokenList[_detailsId] = tokenDetails;
+        _setTokenURI(tokenId, partUri);
+    }
+
+    function initRewardContract(address addr) internal {
         rewardAddress = addr;
         rewardToken = IRewardToken(rewardAddress);
     }

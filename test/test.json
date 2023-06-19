@@ -1,0 +1,23 @@
+[
+    {
+        "id": "0",
+        "name": "Super Duck1",
+        "description": "This super duck is super and it is a duck",
+        "image": "https://bafybeiemiw4yhbmpqnsm7lg7w6xcfodfa6axjsdtwse2fmdkh34ain46rm.ipfs.nftstorage.link/duck_1.jpeg",
+        "parts": ["","","","","",""]
+    },
+    {
+        "id": "1",
+        "name": "Super Duck1",
+        "description": "This super duck is super and it is a duck",
+        "image": "https://bafybeiemiw4yhbmpqnsm7lg7w6xcfodfa6axjsdtwse2fmdkh34ain46rm.ipfs.nftstorage.link/duck_1.jpeg",
+        "parts": ["","","","","",""]
+    },
+    {
+        "id": "2",
+        "name": "Super Duck1",
+        "description": "This super duck is super and it is a duck",
+        "image": "https://bafybeiemiw4yhbmpqnsm7lg7w6xcfodfa6axjsdtwse2fmdkh34ain46rm.ipfs.nftstorage.link/duck_1.jpeg",
+        "parts": ["","","","","",""]
+    }
+]
